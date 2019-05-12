@@ -5,16 +5,17 @@ const ListGroup = ({
   selectedItem,
   onItemSelect,
   textProperty,
-  valueProperty
+  valueProperty,
+  cssClasses
 }) => {
   return (
-    <ul className="listg-roup">
+    <ul className={`listg-roup ${cssClasses}`}>
       {items.map(item => (
         <li
           key={item[valueProperty]}
           onClick={() => onItemSelect(item)}
           className={
-            item[textProperty] === selectedItem
+            selectedItem && item[textProperty] === selectedItem.name
               ? "list-group-item active"
               : "list-group-item"
           }
@@ -28,7 +29,8 @@ const ListGroup = ({
 
 ListGroup.defaultProps = {
   textProperty: "name",
-  valueProperty: "_id"
+  valueProperty: "_id",
+  cssClasses: ""
 };
 
 export default ListGroup;

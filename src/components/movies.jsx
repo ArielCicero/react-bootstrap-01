@@ -57,6 +57,24 @@ class Movies extends Component {
     this.setState({ sortColumn });
   };
 
+  getPageData = () => {
+    const {
+      pageSize,
+      currentPage,
+      movies: allMovies,
+      selectedGenre,
+      sortColumn
+    } = this.state;
+
+    let filtered =
+      selectedGenre && selectedGenre._id !== "000"
+        ? allMovies.filter(movie => movie.genre._id === selectedGenre._id)
+        : allMovies;
+    const ordered = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
+    const movies = paginate2(ordered, pageSize, currentPage);
+    return { totalCount: filtered.length, movies };
+  };
+
   render() {
     const {
       pageSize,
@@ -68,14 +86,7 @@ class Movies extends Component {
     } = this.state;
     // const { length: moviesCount } = allMovies;
     if (!allMovies.length) return <p>There are no movies in the database.</p>;
-    let filtered =
-      selectedGenre && selectedGenre._id !== "000"
-        ? allMovies.filter(movie => movie.genre._id === selectedGenre._id)
-        : allMovies;
-
-    const ordered = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
-    const movies = paginate2(ordered, pageSize, currentPage);
-    const moviesCount = filtered.length;
+    const { totalCount, movies } = this.getPageData();
 
     return (
       <div className="row">
@@ -84,12 +95,13 @@ class Movies extends Component {
             items={genres}
             selectedItem={selectedGenre}
             onItemSelect={this.handleGenreSelect}
+            cssClasses="clickable"
             // textProperty="name"
             // valueProperty="_id"
           />
         </div>
         <div className="col">
-          <p>Showing {moviesCount} movies in the database.</p>
+          <p>Showing {totalCount} movies in the database.</p>
           <MoviesTable
             movies={movies}
             sortColumn={sortColumn}
@@ -99,7 +111,7 @@ class Movies extends Component {
           />
           <Pagination
             onPageChange={this.handdlePageChange}
-            itemsCount={moviesCount}
+            itemsCount={totalCount}
             pageSize={pageSize}
             currentPage={currentPage}
           />
